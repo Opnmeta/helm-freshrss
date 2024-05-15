@@ -1,0 +1,63 @@
+# templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "freshrss.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "freshrss.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "freshrss.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "freshrss.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ tpl .Values.image.tag . }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: TZ
+              value: {{ .Values.freshrss.tz }}
+            - name: CRON_MIN
+              value: {{ .Values.freshrss.cron_min | quote }}
+            {{- if .Values.freshrss.trusted_proxy }}
+            - name: TRUSTED_PROXY
+              value: {{ .Values.freshrss.trusted_proxy }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          volumeMounts:
+            - name: data
+              mountPath: /var/www/FreshRSS/data
+            - name: extensions
+              mountPath: /var/www/FreshRSS/extensions
+      volumes:
+        - name: data
+        {{- if .Values.persistence.data.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ template "freshrss.fullname" . }}-data
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
+        - name: extensions
+        {{- if .Values.persistence.extensions.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ template "freshrss.fullname" . }}-extensions
+        {{- else }}
+          emptyDir: {}
+        {{- end }}

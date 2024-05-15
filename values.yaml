@@ -1,0 +1,33 @@
+# values.yaml
+persistence:
+  data:
+    enabled: true
+    storageClassName: "longhorn"
+    accessModes:
+      - ReadWriteOnce
+    size: 1Gi
+  extensions: 
+    enabled: true
+    storageClassName: "longhorn"
+    accessModes:
+      - ReadWriteOnce
+    size: 1Gi
+
+freshrss:
+  tz: "Asia/Shanghai"
+  cron_min: "*/20"
+
+
+ingress:
+  enabled: true
+  className: traefik
+  annotations: {    
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure,
+    traefik.ingress.kubernetes.io/forwarded-headers-enabled: "true"
+    }
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []

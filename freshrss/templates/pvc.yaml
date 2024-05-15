@@ -1,0 +1,38 @@
+# templates/pvc.yaml
+{{- if .Values.persistence.data.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "freshrss.fullname" . }}-data
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "freshrss.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    {{- range .Values.persistence.data.accessModes }}
+    - {{ . | quote }}
+    {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.data.size | quote }}
+  storageClassName: {{ .Values.persistence.data.storageClassName }}
+{{- end }}
+---
+{{- if .Values.persistence.extensions.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "freshrss.fullname" . }}-extensions
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "freshrss.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    {{- range .Values.persistence.extensions.accessModes }}
+    - {{ . | quote }}
+    {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.extensions.size | quote }}
+  storageClassName: {{ .Values.persistence.extensions.storageClassName }}
+{{- end -}}

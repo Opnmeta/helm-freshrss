@@ -1,0 +1,12 @@
+# Chart.yaml
+apiVersion: v2
+appVersion: 1.23.1
+description: FreshRSS is a self-hosted RSS feed aggregator.
+icon: https://raw.githubusercontent.com/FreshRSS/FreshRSS/master/docs/img/FreshRSS-logo.png
+maintainers:
+- email: ian.yang@opnmeta.com
+  name: Ian Yang
+name: freshrss
+sources:
+- https://github.com/FreshRSS/FreshRSS
+version: 1.23.1

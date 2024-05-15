@@ -1,0 +1,68 @@
+# values.yaml
+replicaCount: 1
+image:
+  repository: freshrss/freshrss
+  tag: "{{ .Chart.AppVersion }}"
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+freshrss:
+  # A timezone http://php.net/timezones (default is UTC)
+  tz: "Asia/Shanghai"
+  # Cron job to refresh feeds at specified minutes
+  # https://github.com/FreshRSS/FreshRSS/tree/edge/Docker#option-1-cron-inside-the-freshrss-docker-image
+  cron_min: "*/20"
+  # Optional parameter, remove for automatic settings, set to 0 to disable,
+  # or (if you use a proxy) to a space-separated list of trusted IP ranges
+  # compatible with https://httpd.apache.org/docs/current/mod/mod_remoteip.html#remoteipinternalproxy
+  # This impacts which IP address is logged (X-Forwarded-For or REMOTE_ADDR).
+  # This also impacts external authentication methods;
+  # see https://freshrss.github.io/FreshRSS/en/admins/09_AccessControl.html
+  # example: 172.16.0.1/12 192.168.0.1/16
+  trusted_proxy: "" 
+
+
+
+
+## If defined, storageClassName: <storageClass>
+## If set to "-", storageClassName: "", which disables dynamic provisioning
+## If undefined (the default) or set to null, no storageClassName spec is
+##   set, choosing the default provisioner.  
+##
+persistence:
+  data:
+    enabled: true
+    storageClassName: "longhorn"
+    accessModes:
+      - ReadWriteOnce
+    size: 1Gi
+  extensions: 
+    enabled: true
+    storageClassName: "longhorn"
+    accessModes:
+      - ReadWriteOnce
+    size: 1Gi
+
+
+
+
+service:
+  type: ClusterIP
+  port: 80
+
+
+ingress:
+  enabled: true
+  className: traefik
+  annotations: {    
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure,
+    traefik.ingress.kubernetes.io/forwarded-headers-enabled: "true"
+    }
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
